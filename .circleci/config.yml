@@ -47,7 +47,7 @@ jobs:
       - image: cimg/ruby:2.6.5
     steps:
       - checkout
-      - run: bundle clean --force
+      - run: bundle clean --force --verbose
       - restore-cache
       - run: bundle install
       - run: ruby src/main.rb
