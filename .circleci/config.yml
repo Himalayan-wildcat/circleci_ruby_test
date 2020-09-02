@@ -44,7 +44,7 @@ commands:
 jobs:
   build-and-test:
     docker:
-      - image: cimg/ruby:2.5
+      - image: cimg/ruby:2.6
     steps:
       - checkout
       - run: bundle clean --force
