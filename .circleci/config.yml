@@ -49,6 +49,7 @@ jobs:
       - checkout
       - run: bundle clean --force
       - restore-cache
+      - bundle install
       - run: ruby src/main.rb
       - save-cache
   deploy:
