@@ -1,0 +1,30 @@
+version: 2.1
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/ruby:2.5
+    steps:
+      - checkout
+      - run: puts "hello world"
+  deploy:
+    machine:
+      image: ubuntu-1604:202004-01
+    steps:
+      - checkout
+      - run: puts "hello world"
+
+workflows:
+  build-test-and-deploy:
+    jobs:
+      - build-and-test
+      - deploy:
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only:
+                - master
+                - staging
+                - qa
+
