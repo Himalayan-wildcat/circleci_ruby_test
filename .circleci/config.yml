@@ -1,18 +1,63 @@
 version: 2.1
 
+commands:
+  restore-cache:
+    steps:
+      - when:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - restore_cache:
+                name: Restoring cache in qa branch
+                keys:
+                  - v0-gem-cache-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+                  - v0-gem-cache-{{ .Branch }}-
+      - unless:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - restore_cache:
+                name: Restoring cache in << pipeline.git.branch >> branch
+                keys:
+                  - v0-gem-cache-{{ checksum "Gemfile.lock" }}
+                  - v0-gem-cache-
+  save-cache:
+    steps:
+      - when:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - save_cache:
+                name: Saving cache in qa branch
+                key: v0-gem-cache-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+                paths:
+                  - ~/.bundle
+      - unless:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - save_cache:
+                name: Saving cache in << pipeline.git.branch >> branch
+                key: v0-gem-cache-{{ checksum "Gemfile.lock" }}
+                paths:
+                  - ~/.bundle
 jobs:
   build-and-test:
     docker:
       - image: cimg/ruby:2.5
     steps:
       - checkout
+      - run: bundle clean --force
+      - restore-cache
       - run: ruby src/main.rb
+      - save-cache
   deploy:
     machine:
       image: ubuntu-1604:202004-01
     steps:
       - checkout
-      - run: puts "hello world"
+      - restore-cache
+      - run: echo "hello world"
 
 workflows:
   build-test-and-deploy:
